@@ -1,10 +1,21 @@
 import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useCreatePost } from "@/hooks/mutations/post/use-create-post";
 import { usePostEditorModal } from "@/store/post-editor-modal";
-import { ImageIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ImageIcon, XIcon } from "lucide-react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
+
+type Image = {
+  file: File;
+  previewUrl: string;
+};
 
 export default function PostEditorModal() {
   const { isOpen, close } = usePostEditorModal();
@@ -19,7 +30,9 @@ export default function PostEditorModal() {
     },
   });
   const [content, setContent] = useState("");
+  const [images, setImages] = useState<Image[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCloseModal = () => {
     close();
@@ -28,6 +41,28 @@ export default function PostEditorModal() {
   const handleCreatePostClick = () => {
     if (content.trim() === "") return;
     createPost(content);
+  };
+
+  const handleSelectImgaes = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      // Array.from : 복사해서 동일한 요소들을 가진 새 배열을 만든다
+      const files = Array.from(e.target.files);
+      files.forEach((file) => {
+        setImages((prev) => [
+          ...prev,
+          { file, previewUrl: URL.createObjectURL(file) },
+          // URL.createObjectURL: 임시용 Url을 생성해서 반환해 줌
+        ]);
+      });
+    }
+
+    e.target.value = "";
+  };
+
+  const handleDeleteImage = (image: Image) => {
+    setImages((prevImages) =>
+      prevImages.filter((item) => item.previewUrl !== image.previewUrl),
+    );
   };
 
   useEffect(() => {
@@ -42,6 +77,7 @@ export default function PostEditorModal() {
     if (!isOpen) return;
     textareaRef.current?.focus();
     setContent("");
+    setImages([]);
   }, [isOpen]);
 
   return (
@@ -59,10 +95,47 @@ export default function PostEditorModal() {
           onChange={(e) => setContent(e.target.value)}
         ></textarea>
 
+        <Input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleSelectImgaes}
+        />
+
+        {images.length > 0 && (
+          <Carousel>
+            <CarouselContent>
+              {images.map((image) => (
+                <CarouselItem className="basis-2/5" key={image.previewUrl}>
+                  <div className="relative">
+                    <img
+                      src={image.previewUrl}
+                      alt=""
+                      className="h-full w-full rounded-sm object-cover"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 m-1 cursor-pointer rounded-full bg-black/50 p-1"
+                      onClick={() => {
+                        handleDeleteImage(image);
+                      }}
+                    >
+                      <XIcon className="h-4 w-4 text-white" />
+                    </button>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        )}
+
         <Button
           disabled={isCreatePostPending}
           variant={"outline"}
           className="cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
         >
           <ImageIcon />
           이미지 추가
