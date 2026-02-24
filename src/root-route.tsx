@@ -25,6 +25,7 @@ export default function RootRoute() {
           <Route path="/post/:postId" element={<PostDetailPage />} />
           <Route path="/profile/:postId" element={<ProfileDetailPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          {/* 비밀번호 재설정 링크 클릭시 로그인이 된 걸로 판단된다 */}
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Route>
