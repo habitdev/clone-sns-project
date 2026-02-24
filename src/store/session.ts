@@ -16,7 +16,7 @@ const useSessionStore = create(
   devtools(
     combine(initialState, (set) => ({
       actions: {
-        setSession: (session: Session) => {
+        setSession: (session: Session | null) => {
           set({ session, isLoaded: true });
         },
       },
