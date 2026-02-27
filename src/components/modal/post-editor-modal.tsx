@@ -38,6 +38,27 @@ export default function PostEditorModal() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height =
+        textareaRef.current.scrollHeight + "px";
+    }
+  }, [content]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // 메모리 누수 방지
+      images.forEach((image) => {
+        URL.revokeObjectURL(image.previewUrl);
+      });
+      return;
+    }
+    textareaRef.current?.focus();
+    setContent("");
+    setImages([]);
+  }, [isOpen]);
+
   const handleCloseModal = () => {
     if (content !== "" || images.length > 0) {
       openAlertModal({
@@ -72,6 +93,8 @@ export default function PostEditorModal() {
           ...prev,
           { file, previewUrl: URL.createObjectURL(file) },
           // URL.createObjectURL: 임시용 Url을 생성해서 반환해 줌
+          // 브라우저의 메모리에 보관이 되므로 메모리 누수가 일어날 수 있다
+          // 따라서 모달을 닫거나 이미지를 삭제할 때 메모리에서도 삭제하게 한다
         ]);
       });
     }
@@ -83,22 +106,9 @@ export default function PostEditorModal() {
     setImages((prevImages) =>
       prevImages.filter((item) => item.previewUrl !== image.previewUrl),
     );
+
+    URL.revokeObjectURL(image.previewUrl);
   };
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height =
-        textareaRef.current.scrollHeight + "px";
-    }
-  }, [content]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    textareaRef.current?.focus();
-    setContent("");
-    setImages([]);
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseModal}>
