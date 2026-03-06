@@ -98,5 +98,5 @@ export async function deletePost(id: number) {
     .single();
 
   if (error) throw error;
-  return error;
+  return data;
 }
