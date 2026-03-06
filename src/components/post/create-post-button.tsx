@@ -1,12 +1,12 @@
-import { useOpenPostEditorModal } from "@/store/post-editor-modal";
+import { useOpenCreatePostModal } from "@/store/post-editor-modal";
 import { PlusCircleIcon } from "lucide-react";
 
 export default function CreatePostButton() {
-  const openPostEditiorModal = useOpenPostEditorModal();
+  const openCreatePostModal = useOpenCreatePostModal();
 
   return (
     <button
-      onClick={openPostEditiorModal}
+      onClick={openCreatePostModal}
       className="bg-muted text-muted-foreground cursor-pointer rounded-xl px-6 py-4"
     >
       <span className="flex items-center justify-between">
