@@ -7,10 +7,16 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { formatTimeAgo } from "@/lib/time";
+import { useSession } from "@/store/session";
 import type { Post } from "@/types";
 import { HeartIcon, MessageCircle } from "lucide-react";
 
 export default function PostItem(post: Post) {
+  const session = useSession();
+  const userId = session?.user.id;
+
+  const isMine = post.author_id === userId;
+
   return (
     <div className="flex flex-col gap-4 border-b pb-8">
       {/* 1. 유저 정보, 수정/삭제 버튼 */}
@@ -33,10 +39,12 @@ export default function PostItem(post: Post) {
         </div>
 
         {/* 1-2. 수정/삭제 버튼 */}
-        <div className="text-muted-foreground flex text-sm">
-          <EditPostButton {...post} />
-          <DeletePostButton id={post.id} />
-        </div>
+        {isMine && (
+          <div className="text-muted-foreground flex text-sm">
+            <EditPostButton {...post} />
+            <DeletePostButton id={post.id} />
+          </div>
+        )}
       </div>
 
       {/* 2. 컨텐츠, 이미지 캐러셀 */}
