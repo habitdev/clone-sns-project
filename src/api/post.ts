@@ -21,7 +21,7 @@ export async function fetchPosts({
   if (error) throw error;
   return data.map((post) => ({
     ...post,
-    isliked: post.myLiked && post.myLiked.length > 0,
+    isLiked: post.myLiked && post.myLiked.length > 0,
   }));
 }
 
@@ -42,7 +42,7 @@ export async function fetchPostById({
   if (error) throw error;
   return {
     ...data,
-    isliked: data.myLiked && data.myLiked.length > 0,
+    isLiked: data.myLiked && data.myLiked.length > 0,
   };
 }
 
